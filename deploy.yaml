@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sidecartest
+  labels:
+    app: sidecartest
+spec:
+  selector:
+    matchLabels:
+      app: sidecartest
+  template:
+    metadata:
+      labels:
+        app: sidecartest
+    spec:
+      containers:
+      - name: app-test 
+        image: echalhoub/app_test
+      - name: sidecar-test
+        image: echalhoub/app_sidecar
+        env:
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+
