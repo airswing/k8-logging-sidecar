@@ -72,8 +72,7 @@ class Logstash(Endpoint):
         if endpoint['protocol'] == 'TCP':
             self.logger.addHandler(logstash.TCPLogstashHandler(self.host_url, self.host_port, version=self.version))
         else:
-            # 'UDP'
-            self.logger.addHandler(logstash.LogstashHandler(self.host_url, self.host_port, version=self.version))
+            self.logger.addHandler(logstash.UDPLogstashHandler(self.host_url, self.host_port, version=self.version))
 
     def output(self, output, container_name):
         self.logger.info(f'{container_name}:{output}')

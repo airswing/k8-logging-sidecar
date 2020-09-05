@@ -32,10 +32,10 @@
     {
       "name": "logstash_testing",
       "type": "logstash",
-      "enabled": false,
-      "host_url": "localhost",
-      "host_port": 5959,
-      "protocol": "TCP",
+      "enabled": true,
+      "host_url": "logstash",
+      "host_port": 9600,
+      "protocol": "UDP",
       "version": 1
     }
   ]

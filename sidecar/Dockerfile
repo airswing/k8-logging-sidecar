@@ -1,5 +1,5 @@
 FROM python:3.8
-RUN pip install kubernetes python3-logstash
+RUN pip install kubernetes python-logstash
 
 WORKDIR /code
 COPY src/ .
