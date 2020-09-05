@@ -16,6 +16,8 @@ spec:
       containers:
       - name: app-test 
         image: echalhoub/app_test
+      - name: another-app-test
+        image: echalhoub/another_app_test
       - name: sidecar-test
         image: echalhoub/app_sidecar
         env:

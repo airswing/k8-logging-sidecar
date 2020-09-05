@@ -2,7 +2,7 @@ import logging
 import time
 
 logging.warning('App test starting up...')
-logging.warning('Start up completed! Test daemon running.')
+logging.warning('Start up completed! Test running...')
 
 while True:
     time.sleep(5)

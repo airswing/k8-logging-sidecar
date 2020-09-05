@@ -1,6 +1,6 @@
 # k8-logging-sidecar
-The k8 logging sidecar monitors the standard output of an app in the same pod and writes it to disk
+The k8 logging sidecar monitors the standard output of selected containers within the same pod and writes it to any number of endpoints :)
 
-# To do
-Create json config file containing the logging endpoint(s) intended to log to.
-Add it to a list of loggers within the app and push to all of the enabled endpoints.
+## To do
+- Write documentation
+- Make `config.json` easier to insert (without rebuilding the image)

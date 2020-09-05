@@ -1,39 +1,32 @@
-import logging
-import os
-from kubernetes.client.rest import ApiException
-from kubernetes import client, config, watch
+import argparse
+import atexit
+import threading
 
-logging.warning('sidecar-test logging...')
-with open('/var/run/secrets/kubernetes.io/serviceaccount/namespace', 'r') as fin:
-    nameyspacey = fin.read()
+from kube import *
+from config import Config
 
-SERVICE_TOKEN_FILENAME = "/var/run/secrets/kubernetes.io/serviceaccount/token"
-SERVICE_CERT_FILENAME = "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"
-KUBERNETES_HOST = "https://%s:%s" % (os.getenv("KUBERNETES_SERVICE_HOST"), os.getenv("KUBERNETES_SERVICE_PORT"))
 
-## configure 
-configuration = client.Configuration()
-configuration.host = KUBERNETES_HOST
-if not os.path.isfile(SERVICE_TOKEN_FILENAME):
-    raise ApiException("Service token file does not exists.")
-with open(SERVICE_TOKEN_FILENAME) as f:
-    token = f.read()
-    if not token:
-        raise ApiException("Token file exists but empty.")
-    configuration.api_key['authorization'] = "bearer " + token.strip('\n')
-if not os.path.isfile(SERVICE_CERT_FILENAME):
-    raise ApiException("Service certification file does not exists.")
-with open(SERVICE_CERT_FILENAME) as f:
-    if not f.read():
-        raise ApiException("Cert file exists but empty.")
-    configuration.ssl_ca_cert = SERVICE_CERT_FILENAME
-client.Configuration.set_default(configuration)
+def main(config_file):
+    config = Config()
+    endpoints = config.read(config_file)
+    atexit.register(endpoints.close_all_files)
 
-api_instance = client.CoreV1Api()
-w = watch.Watch()
+    service_token_path, service_cert_path, namespace_path = config.get_kubernetes_config()
+    api_instance, watch, namespace, pod_name = get_k8_instance(service_token_path, service_cert_path, namespace_path)
 
-with open("logs.txt", "wb", buffering=0) as f:
-    for line in w.stream(api_instance.read_namespaced_pod_log, name=os.environ['POD_NAME'], namespace=nameyspacey, container='app-test'):
-        logging.warning(line)
-        line+='\n'
-        f.write(line.encode('utf-8'))
+    # Launch a thread for each container
+    for container_name in config.container_names:
+        threading.Thread(target=watch_n_stream, args=(api_instance, watch, namespace, pod_name, endpoints, container_name)).start()
+
+
+def watch_n_stream(api_instance, watch, namespace, pod_name, endpoints, container_name):
+    for line in watch.stream(api_instance.read_namespaced_pod_log, name=pod_name, namespace=namespace,
+                             container=container_name):
+        endpoints.output(line, container_name)
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description='Kubernetes Logging Sidecar')
+    parser.add_argument('configfile', type=str, help='Path of config file for Kubernetes Logging Sidecar to run')
+    args = parser.parse_args()
+    main(args.configfile)

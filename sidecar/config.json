@@ -1,0 +1,42 @@
+{
+  "kubernetes": {
+    "service_token_path": "/var/run/secrets/kubernetes.io/serviceaccount/token",
+    "service_cert_path": "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt",
+    "namespace_path": "/var/run/secrets/kubernetes.io/serviceaccount/namespace",
+    "containers": [
+      "app-test",
+      "another-app-test"
+    ]
+  },
+  "endpoints": [
+    {
+      "name": "console_endpoint",
+      "type": "console",
+      "enabled": true,
+      "logging_level": "INFO"
+    },
+    {
+      "name": "file_endpoint_1",
+      "type": "file",
+      "enabled": true,
+      "encoding": "utf-8",
+      "path": "logs1.txt"
+    },
+    {
+      "name": "file_endpoint_2",
+      "type": "file",
+      "enabled": true,
+      "encoding": "utf-8",
+      "path": "logs2.txt"
+    },
+    {
+      "name": "logstash_testing",
+      "type": "logstash",
+      "enabled": false,
+      "host_url": "localhost",
+      "host_port": 5959,
+      "protocol": "TCP",
+      "version": 1
+    }
+  ]
+}
